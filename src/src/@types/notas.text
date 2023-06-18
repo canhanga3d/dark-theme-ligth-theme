@@ -1,0 +1,216 @@
+por favor tenho esse projeto de selecionar o tema, pretendo evoluir para mais de dois temas, por favor ajuda-me vou descrever cada parte do código
+
+parte de tipagem dos temas nome do arquivo styled.d.ts
+
+import { darkTheme } from '../styles/themes/darkTheme';
+import { defaultTheme } from '../styles/themes/defaultTheme';
+
+const theme = {
+  ...darkTheme,
+  ...defaultTheme,
+};
+type ThemeType = typeof theme;
+declare module 'styled-components' {
+  export interface DefaultTheme extends ThemeType {}
+}
+
+tema dark se encontra no arquivo darkTheme.ts
+export const darkTheme = {
+  primary: '#1a73e8',
+  secondary: '#20c933',
+  tertiary: '#fbbc05',
+  background: '#1A1A1A',
+  text: '#FFFFFF',
+
+};
+
+tema defaultTheme se encontra no arquivo defaultTheme.ts
+export const defaultTheme = {
+  primary: '#4285f4',
+  secondary: '#34a853',
+  tertiary: '#fbbc05',
+  background: '#FFFFFF',
+  text: '#3D3D3D',
+};
+arquivo utilsTheme.ts se encontra em  utilsTheme.ts é a interface para os temas
+export interface ThemeColors {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  background: string;
+  text: string;
+}
+
+arquivo de estilo global  GlobalStyle  se encontra em global.ts
+import { createGlobalStyle } from 'styled-components';
+export const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Roboto:wght@400;700&display=swap');
+  *, *::after, *::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+    margin: 0;
+    padding: 0;
+    background-color: ${props => props.theme.background};
+    color: ${({ theme }) => theme.text};
+    font-family: Arial, sans-serif;
+  }
+`;
+
+arquivo de ButtonContainer se encontra ButtonContainer.ts
+
+import { MoonStars, SunDim } from '@phosphor-icons/react';
+import styled from 'styled-components';
+
+export const ThemeToggleButton = styled.div`
+  background: transparent;
+  position: absolute;
+  top: 10px;
+  right: 2px;
+  cursor: pointer;
+`;
+
+export const Box = styled.div`
+  background: transparent;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 600ms ease-in-out;
+  &:hover {
+    outline: 5px solid rgba(0, 0, 0, 0.5);
+  }
+  .dark &:hover {
+    outline: 5px solid rgba(255, 255, 255, 0.5);
+  }
+  .dark & {
+    transform: rotateY(180deg);
+    transition: transform 600ms ease-in-out;
+  }
+`;
+
+export const Front = styled.span`
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const Back = styled.span`
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: rotateY(180deg);
+`;
+
+export const SunIcon = styled(SunDim)`
+  width: 100%;
+  height: 100%;
+  color: #1A1A1A;
+`;
+
+export const MoonIcon = styled(MoonStars)`
+  width: 100%;
+  height: 100%;
+  color: white;
+`;
+
+o  arquivo de App.tsx 
+
+import { useEffect, useState } from 'react';
+import { ThemeProvider } from 'styled-components';
+import {
+  Back,
+  Box,
+  Front,
+  MoonIcon,
+  SunIcon,
+  ThemeToggleButton,
+} from './ButtonContainer';
+import { GlobalStyle } from './styles/global';
+import { darkTheme } from './styles/themes/darkTheme';
+import { defaultTheme } from './styles/themes/defaultTheme';
+import { ThemeColors } from './styles/themes/utilsTheme';
+
+// Função para recuperar o tema salvo no localStorage ou tema light como padrão
+const getSavedTheme = (): ThemeColors => {
+  const savedTheme = localStorage.getItem('theme');
+  return savedTheme === 'dark' ? darkTheme : defaultTheme;
+};
+
+// Componente da aplicação
+export function App() {
+  const [currentTheme, setCurrentTheme] = useState<ThemeColors>(
+    getSavedTheme()
+  );
+
+  const toggleTheme = (): void => {
+    const newTheme = currentTheme === defaultTheme ? darkTheme : defaultTheme;
+    setCurrentTheme(newTheme);
+    localStorage.setItem('theme', newTheme === darkTheme ? 'dark' : 'light');
+  };
+
+  // Efeito para verificar e aplicar o tema salvo ao montar o componente
+  useEffect(() => {
+    const savedTheme = getSavedTheme();
+    setCurrentTheme(savedTheme);
+  }, []);
+
+  return (
+    <ThemeProvider theme={currentTheme}>
+      <>
+        <GlobalStyle />
+        <div>
+          <h1>Themed App</h1>
+          <p>This is some text in the app.</p>
+          <ThemeToggleButton
+            className={currentTheme === darkTheme ? 'dark' : ''}
+            onClick={toggleTheme}
+          >
+            <Box>
+              <Front>
+                <SunIcon size={32} />
+              </Front>
+              <Back>
+                <MoonIcon size={18} />
+              </Back>
+            </Box>
+          </ThemeToggleButton>
+        </div>
+      </>
+    </ThemeProvider>
+  );
+}
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { App } from './App.tsx';
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+Ajudame a melhorar para ter opção de mais de dois temas.
